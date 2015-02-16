@@ -1,0 +1,18 @@
+table {
+	border: 1px solid gray;
+	width: 600px;
+	height: 30px;
+	margin: 30px auto 0;
+}
+
+td {
+	border: 1px solid gray;
+}
+
+.player-1 .active {
+	background-color: blue;
+}
+
+.player-2 .active {
+	background-color: red;
+}
