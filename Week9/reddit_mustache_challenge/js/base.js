@@ -29,17 +29,8 @@ function renderGallery(response) {
     if(item_data.thumbnail == 'nsfw')
       item_data.thumbnail = 'http://www.imgbase.info/images/safe-wallpapers/animals/cat/37493_cat_kitten_orange_kitten.jpg'
     // now, let's build the raw html for our item
-    var item_html = (
-                      "<div class='item clearfix'>" +
-                        "<img src='" + item_data.thumbnail + "'>" +
-                        "<p><a class='title' href='" + item_data.url + "'>"+item_data.title+"</a></p>"+
-                        "<p>"+
-                          item_data.ups+" upvotes, "+item_data.downs+" downvotes <br>" +
-                          "Submitted by "+ item_data.author +
-                        "</p>"+
-
-                      "</div>"
-                    );
+    var item_html = $("#post-prototype").html();
+    item_html = Mustache.render(item_html, item_data);
     gallery.append(item_html);
   }
 }
