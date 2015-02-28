@@ -1,4 +1,6 @@
+var APIEndPoint = "http://api.sunrise-sunset.org/json?"
 
+http://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400&date=today
 //Ready
 $(document).ready(function() {
 	// Put your code in here!
@@ -17,12 +19,9 @@ function updateTime() {
 
 function getLocation() {
     if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(showPosition);
+        navigator.geolocation.getCurrentPosition(getSunPosFromAPI);
     } else { 
-    	var item_html = $("#error-prototype").html();
-    	var item_data = { "errorTitle": "Sorry", "errorText": "Sorry, Geolocation is not supported by this browser."}
-    	var innerHTML = Mustache.render(item_html, item_data);
-    	$("#content").html(innerHTML);
+    	displayError({ "errorTitle": "Sorry", "errorText": "Geolocation is not supported by this browser."});
     }
 }
 
@@ -32,4 +31,27 @@ function showPosition(position) {
     "<br>Longitude: " + position.coords.longitude;	
 
     $("#content").html("<h4>"+innerHTML+"<h4>");
+}
+
+function getSunPosFromAPI(position) {
+    $.get(APIEndPoint + "lat=" + position.coords.latitude + "&lng=" + position.coords.longitude + "&date=today")
+    .success(parseData)
+    .fail(getAPIError);
+}
+
+function getAPIError() {
+    displayError({ "errorTitle": "Sorry", "errorText": "Refresh Me! - Service Temporarily Unavailable"});
+}
+
+function parseData(data) {
+    $("#sun-rise .time").text = date["sunrise"];
+    $("#noon .time").text = date["solar_noon"];
+    $("#sun-set .time").text = date["sunset"];
+}
+
+//helper functions
+function displayError(errorInfo) {
+    var item_html = $("#error-prototype").html();
+    var innerHTML = Mustache.render(item_html, errorInfo);
+    $("#content").html(innerHTML);
 }
