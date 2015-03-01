@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta charset="UTF-8">
 	<title>Sun</title>
 	<link rel="stylesheet" href="css/normalize.css">
@@ -12,16 +13,22 @@
 	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/0.8.1/mustache.min.js"></script>
 	<script src="sun.js"></script>
 </head>
-<body>
+<body class="ui-mobile-viewport ui-overlay-a">
 	<div id="container">
 		<header class="header">
 			<a href="#" id="refresh_page">Sun</a>
 		</header> 
 
 		<div id="main">
-			<div id="content">
+			<div id="loading">
+				<img id="loading-img" src="gif/spinner.gif">
+				<h3>Loading...<h3>
+			</div>
+			
 
-				<img id="sun-img" src="http://media.giphy.com/media/10d3NDzD40xb0s/giphy.gif" style="float: left;">
+			<div id="content" style="display: none;">
+
+				<img id="sun-img" src="gif/sun.gif" style="float: left;">
 
 				<hr id="divider" style="clear: left;">
 
@@ -40,11 +47,14 @@
 					</div>
 				</div>
 
-				<div id="date_section" class="clearfix">
-					<h4 id="day_of_week">Day</h4>
-					<h4 id="date">Date</h4>
+				<div id="setTimeDate" class="clearfix">
+					<button type="button" id="setDateTimeBtn">Set Time and Date</button>
 				</div>
+			</div>
 
+			<div id="date_section" class="clearfix">
+				<h4 id="day_of_week">Day</h4>
+				<h4 id="date">Date</h4>
 			</div>
 		</div>
 	</div>
@@ -52,11 +62,6 @@
 	<div id="error-prototype" style="display: none;">
 		<h3>{{errorTitle}}</h3>
 		<h5>{{errorText}}</h5>
-	</div>
-
-	<div id="loading" style="display: none;">
-		<h3>Loading Location...<h3>
-		</div>
 	</div>
 </body>
 

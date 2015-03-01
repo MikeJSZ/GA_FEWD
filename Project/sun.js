@@ -1,20 +1,33 @@
 var APIEndPoint = "http://api.sunrise-sunset.org/json?"
+var date;
+var updateTimeInterval;
+var getLocationInterval;
 
-http://api.sunrise-sunset.org/json?lat=36.7201600&lng=-4.4203400&date=today
-//Ready
 $(document).ready(function() {
 	// Put your code in here!
+    updateTime();
+    getLocation();
+    updateTimeInterval = window.setInterval(updateTime, 999);
+    getLocationInterval = window.setInterval(getLocation, 1000*60);
 
-	updateTime();
-	getLocation();
+    $("#setDateTimeBtn").click(clickSetTimeDateBtn);
 });
 
 function updateTime() {
-	var time = new Date().getTime();
-	time = Math.round(time / 1000);
-	var dayArray = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-	$("#date_section #day_of_week").text(dayArray[moment.unix(time).format("E")-1]);
-	$("#date_section #date").text(moment.unix(time).format("MMMM DD, YYYY"));
+    date = new moment();
+    date.local();
+
+	$("#date_section #day_of_week").text(moment(date).format("ddd. h:mm:ss A"));
+	$("#date_section #date").text(moment(date).format("MMMM DD, YYYY"));
+}
+
+function clickSetTimeDateBtn(btn) {
+    window.clearInterval(updateTimeInterval);
+    window.clearInterval(getLocationInterval);
+
+    $("#setTimeDate").html("<input id=\"datetime\" type=\"datetime-local\">" +
+                            "<button type=\"button\" id=\"updateBtn\">Update</button>");
+
 }
 
 function getLocation() {
@@ -34,8 +47,8 @@ function showPosition(position) {
 }
 
 function getSunPosFromAPI(position) {
-    $.get(APIEndPoint + "lat=" + position.coords.latitude + "&lng=" + position.coords.longitude + "&date=today")
-    .success(parseData)
+    $.getJSON(APIEndPoint + "lat=" + position.coords.latitude + "&lng=" + position.coords.longitude + "&date=" + date.format("YYYY-MM-DD") + "&callback=?")
+    .done(parseData)
     .fail(getAPIError);
 }
 
@@ -44,9 +57,38 @@ function getAPIError() {
 }
 
 function parseData(data) {
-    $("#sun-rise .time").text = date["sunrise"];
-    $("#noon .time").text = date["solar_noon"];
-    $("#sun-set .time").text = date["sunset"];
+    var sunriseDate = getLocalDateFromUTCDate(data["results"]["sunrise"]);
+    var noonDate = getLocalDateFromUTCDate(data["results"]["solar_noon"]);
+    var sunsetDate = getLocalDateFromUTCDate(data["results"]["sunset"]);
+
+    $("#sun-rise .time").text(moment(sunriseDate).format("h:mm:ss A"));
+    $("#noon .time").text(moment(noonDate).format("h:mm:ss A"));
+    $("#sun-set .time").text(moment(sunsetDate).format("h:mm:ss A"));
+
+    loadSunPos(sunriseDate, sunsetDate);
+
+    $("#content").css("display","inline");
+    $("#loading").css("display","none");
+}
+
+function loadSunPos(sunriseDate, sunsetDate) {
+    var timeNow = moment();
+    timeNow.local();
+    nowMinute = timeNow.hours() * 60 + timeNow.minutes();
+    sunriseMinute = sunriseDate.hours() * 60 + sunriseDate.minutes();
+    sunsetMinute = sunsetDate.hours() * 60 + sunsetDate.minutes();
+
+    var progress = (((nowMinute - sunriseMinute) / (sunsetMinute - sunriseMinute)) * 87) + 3;
+
+    if (progress < 3) {
+        progress = 3;
+    } else if (progress > 90) {
+        progress = 90;
+    }
+
+    $("#sun-img").css("margin-left", progress+"%");
+
+    $
 }
 
 //helper functions
@@ -54,4 +96,15 @@ function displayError(errorInfo) {
     var item_html = $("#error-prototype").html();
     var innerHTML = Mustache.render(item_html, errorInfo);
     $("#content").html(innerHTML);
+    $("#content").css("display","inline");
+    $("#loading").css("display","none");
+}
+
+function getLocalDateFromUTCDate(utcDateString) {
+    var offsetHours = date.zone() / 60;
+    var localDate = new moment(utcDateString, "h:mm:ss A");
+
+    localDate = localDate.add(-offsetHours, 'hours');
+
+    return localDate;
 }
